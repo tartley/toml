@@ -1,0 +1,4 @@
+
+def loads(string):
+    pass
+

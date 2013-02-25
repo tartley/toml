@@ -1,0 +1,78 @@
+TOML
+====
+
+Parser for TOML, https://github.com/mojombo/toml.
+
+Usage
+-----
+
+::
+
+    data = toml.loads(string)
+
+Where::
+
+    --help|-h           Show this help message and exit.
+    --version           Show version number and exit.
+
+Long description.
+
+Dependencies
+------------
+
+Any OS.
+Python 3.3.
+See requirements.txt for Python packages.
+
+Install
+-------
+
+::
+
+    pip install toml
+
+Known Problems
+--------------
+
+Doesn't work. Not remotely finished.
+
+Alternatives
+------------
+
+Many listed on https://github.com/mojombo/toml.
+
+Thanks
+------
+
+Tom, I suppose.
+
+Hacking
+-------
+
+To hack on this project, first install development dependencies::
+
+    pip install -f requirements-dev.txt
+
+Then get the source code into your virtualenv::
+
+    python setup.py develop
+
+And run tests::
+
+    make test
+
+The included Makefile has other useful targets, check it out.
+
+
+Contact
+-------
+
+:Documentation & download (not yet uploaded):
+   http://pypi.python.org/pypi/????/
+
+:Souce code and issues:
+    https://github.com/tartley/toml/
+
+:Contact the author:
+    Jonathan Hartley, email: tartley at domain tartley.com, Twitter: @tartley.
+
