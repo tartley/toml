@@ -1,4 +1,8 @@
+from ply import yacc
 
+
+# Public outermost function,
+# only system tested, not unit tested
 def loads(string):
-    pass
+    return yacc.parse(string)
 

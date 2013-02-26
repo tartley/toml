@@ -7,7 +7,7 @@
 PROJNAME=toml
 
 test:
-	python -m unittest discover -p '*test.py'
+	python -m unittest discover
 .PHONY: test
 
 pylint:
@@ -17,6 +17,9 @@ pylint:
 tags:
 	ctags -R --languages=python .
 .PHONY: tags
+
+pip:
+	pip install -r requirements.txt
 
 clean:
 	rm -rf build dist MANIFEST tags *.egg-info
