@@ -28,3 +28,6 @@ nosetests.xml
 
 tags
 
+parser.out
+parsetab.py
+
