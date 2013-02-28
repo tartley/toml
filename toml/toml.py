@@ -2,6 +2,11 @@ from ply import lex, yacc
 
 class TomlParser():
 
+    def __init__(self):
+        self.lexer = lex.lex(module=self)
+        self.parser = yacc.yacc(module=self)
+
+
     # ---- lexing rules
 
     tokens = (
@@ -41,7 +46,6 @@ class TomlParser():
 
 
     # ------- parsing rules
-
 
     def p_document(self, p):
         '''
@@ -92,22 +96,12 @@ class TomlParser():
             )
 
 
-# TODO cache the return value
-def _get_parser():
-    toml_parser = TomlParser()
-    return lex.lex(module=toml_parser), yacc.yacc(module=toml_parser)
+    # --------- public API
+
+    def parse(self, text):
+        return self.parser.parse(text, lexer=self.lexer)
 
 
 def loads(text):
-    lexer, parser = _get_parser()
-    return parser.parse(text, lexer=lexer)
-
-
-
-
-
-
-
-
-
+    return TomlParser().parse(text)
 
