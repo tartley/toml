@@ -20,6 +20,10 @@ class TomlParser():
         token.value = int(token.value)
         return token
 
+    def t_comment(self, token):
+        r'\#.*'
+        pass
+
 
     def t_newline(self, token):
         r'\n+'
