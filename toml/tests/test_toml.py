@@ -3,6 +3,10 @@ import unittest
 from ..toml import loads
 
 
+# TODO integer should handle negatives
+# TODO there may be no assignments in a group
+
+
 class LoadsTest(unittest.TestCase):
 
     def test_empty(self):
@@ -25,4 +29,7 @@ class LoadsTest(unittest.TestCase):
 
     def test_whitespace(self):
         self.assertEqual(loads('abc = 123'), {'abc': 123})
+
+    def test_group(self):
+        self.assertEqual(loads('[group]'), {'group': {}})
 

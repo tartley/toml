@@ -22,7 +22,6 @@ class TomlParser():
 
     def t_INTEGER(self, token):
         r'\d+'
-        # TODO should handle negatives
         token.value = int(token.value)
         return token
 
