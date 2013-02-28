@@ -92,12 +92,14 @@ class TomlParser():
             )
 
 
-toml_parser = TomlParser()
-lexer = lex.lex(module=toml_parser)
-parser = yacc.yacc(module=toml_parser)
+# TODO cache the return value
+def _get_parser():
+    toml_parser = TomlParser()
+    return lex.lex(module=toml_parser), yacc.yacc(module=toml_parser)
 
 
 def loads(text):
+    lexer, parser = _get_parser()
     return parser.parse(text, lexer=lexer)
 
 
