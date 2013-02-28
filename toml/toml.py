@@ -1,16 +1,33 @@
 from ply import lex, yacc
 
-class TomlParser():
+
+class Parser():
 
     def __init__(self):
         self.lexer = lex.lex(module=self)
         self.parser = yacc.yacc(module=self)
 
 
+    def p_error(self, p):
+        if p is None:
+            raise SyntaxError("Syntax error at EOF")
+        else:
+            raise SyntaxError(
+                "Syntax error at '%s', line %d" % (p.value, p.lexer.lineno)
+            )
+
+
+    def parse(self, text):
+        return self.parser.parse(text, lexer=self.lexer)
+
+
+
+class TomlParser(Parser):
+
     # ---- lexing rules
 
     tokens = (
-        'NAME','INTEGER', 'STRING',
+        'GROUP', 'NAME','INTEGER', 'STRING',
     )
 
     literals = ['=']
@@ -27,6 +44,11 @@ class TomlParser():
 
     def t_STRING(self, token):
         r'".*"'
+        token.value = token.value[1:-1]
+        return token
+
+    def t_GROUP(self, token):
+        r'\[[^.]+\]'
         token.value = token.value[1:-1]
         return token
 
@@ -49,23 +71,49 @@ class TomlParser():
 
     def p_document(self, p):
         '''
-        document :
-                 | assignments
+        document : assignments sections
         '''
+        print('document', len(p), [i for i in p])
+        p[0] = p[1]
+        p[0].update(p[2])
+
+
+    def p_sections(self, p):
+        '''
+        sections : 
+                 | section
+                 | sections section
+        '''
+        print('sections', len(p), [i for i in p])
         if len(p) == 1:
             p[0] = {}
-        elif len(p) > 1:
+        elif len(p) == 2:
             p[0] = p[1]
+        elif len(p) == 3:
+            p[0] = p[1]
+            p[0].update(p[2])
         else:
             raise RuntimeError('how did we get here?')
 
 
+    def p_section(self, p):
+        '''
+        section : GROUP assignments
+        '''
+        print('section', len(p), [i for i in p])
+        p[0] = {p[1]: p[2]}
+
+
     def p_assignments(self, p):
         '''
-        assignments : assignment
+        assignments : 
+                    | assignment
                     | assignments assignment
         '''
-        if len(p) == 2:
+        print('assignments', len(p), [i for i in p])
+        if len(p) == 1:
+            p[0] = {}          
+        elif len(p) == 2:
             p[0] = p[1]
         elif len(p) == 3:
             p[0] = p[1]
@@ -78,6 +126,7 @@ class TomlParser():
         '''
         assignment : NAME "=" value
         '''
+        print('assignment', len(p), [i for i in p])
         p[0] = {p[1]: p[3]}
 
 
@@ -88,20 +137,6 @@ class TomlParser():
         '''
         p[0] = p[1]
 
-
-    def p_error(self, p):
-        if p is None:
-            raise SyntaxError("Syntax error at EOF")
-        else:
-            raise SyntaxError(
-                "Syntax error at '%s', line %d" % (p.value, p.lexer.lineno)
-            )
-
-
-    # --------- public API
-
-    def parse(self, text):
-        return self.parser.parse(text, lexer=self.lexer)
 
 
 def loads(text):

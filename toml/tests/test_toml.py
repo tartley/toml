@@ -33,3 +33,9 @@ class LoadsTest(unittest.TestCase):
     def test_group(self):
         self.assertEqual(loads('[group]'), {'group': {}})
 
+    def test_group_with_assignment(self):
+        self.assertEqual(loads('[group]\nabc=123'), {'group': {'abc': 123}})
+
+    def test_groups_and_assignments(self):
+        self.assertEqual(loads('abc=123\n[group]'), {'group': {}, 'abc': 123})
+
