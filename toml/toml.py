@@ -10,7 +10,7 @@ class TomlParser():
     # ---- lexing rules
 
     tokens = (
-        'NAME','NUMBER', 'STRING',
+        'NAME','INTEGER', 'STRING',
     )
 
     literals = ['=']
@@ -20,8 +20,9 @@ class TomlParser():
     t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 
-    def t_NUMBER(self, token):
+    def t_INTEGER(self, token):
         r'\d+'
+        # TODO should handle negatives
         token.value = int(token.value)
         return token
 
@@ -75,13 +76,15 @@ class TomlParser():
 
 
     def p_assignment(self, p):
-        'assignment : NAME "=" value'
+        '''
+        assignment : NAME "=" value
+        '''
         p[0] = {p[1]: p[3]}
 
 
     def p_value(self, p):
         '''
-        value : NUMBER
+        value : INTEGER
               | STRING
         '''
         p[0] = p[1]
