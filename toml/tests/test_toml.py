@@ -11,6 +11,12 @@ class LoadsTest(unittest.TestCase):
     def test_comment(self):
         self.assertEqual(loads('# comment'), {})
 
-    def test_p_statement_assignment(self):
+    def test_assignment_number(self):
         self.assertEqual(loads('abc=123'), {'abc': 123})
+
+    def test_assignment_string(self):
+        self.assertEqual(loads('abc = "def"'), {'abc': "def"})
+
+    def test_whitespace(self):
+        self.assertEqual(loads('abc = 123'), {'abc': 123})
 

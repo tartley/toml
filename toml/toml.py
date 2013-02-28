@@ -5,12 +5,12 @@ class TomlParser():
     # ---- lexing rules
 
     tokens = (
-        'NAME','NUMBER',
+        'NAME','NUMBER', 'STRING',
     )
 
     literals = ['=']
 
-    #t_ignore = " \t"
+    t_ignore = " \t"
 
     t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
@@ -20,19 +20,24 @@ class TomlParser():
         token.value = int(token.value)
         return token
 
+    def t_STRING(self, token):
+        r'".*"'
+        token.value = token.value[1:-1]
+        return token
+
     def t_comment(self, token):
         r'\#.*'
         pass
-
 
     def t_newline(self, token):
         r'\n+'
         token.lexer.lineno += len(token.value)
 
-
     def t_error(self, token):
-        print("Illegal character '%s'" % token.value[0])
-        token.lexer.skip(1)
+        raise SyntaxError(
+            "Illegal character '%s' at line %d" %
+            (token.value[0], token.lexer.lineno)
+        )
 
 
     # ------- parsing rules
@@ -52,12 +57,15 @@ class TomlParser():
 
 
     def p_assignment(self, p):
-        'assignment : NAME "=" expression'
+        'assignment : NAME "=" value'
         p[0] = {p[1]: p[3]}
 
 
-    def p_expression_number(self, p):
-        "expression : NUMBER"
+    def p_value(self, p):
+        '''
+        value : NUMBER
+              | STRING
+        '''
         p[0] = p[1]
 
 
