@@ -46,12 +46,26 @@ class TomlParser():
     def p_document(self, p):
         '''
         document :
-                 | assignment
+                 | assignments
         '''
         if len(p) == 1:
             p[0] = {}
         elif len(p) > 1:
             p[0] = p[1]
+        else:
+            raise RuntimeError('how did we get here?')
+
+
+    def p_assignments(self, p):
+        '''
+        assignments : assignment
+                    | assignments assignment
+        '''
+        if len(p) == 2:
+            p[0] = p[1]
+        elif len(p) == 3:
+            p[0] = p[1]
+            p[0].update(p[2])
         else:
             raise RuntimeError('how did we get here?')
 
