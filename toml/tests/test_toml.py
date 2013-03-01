@@ -6,6 +6,7 @@ from ..toml import loads
 
 # TODO integer should handle negatives
 # TODO there may be no assignments in a group
+# TODO we don't handle timezones at all
 
 
 class LoadsTest(unittest.TestCase):
@@ -25,7 +26,7 @@ class LoadsTest(unittest.TestCase):
     def test_assignment_date(self):
         self.assertEqual(
             loads('dob = 1979-05-27T07:32:00Z'),
-            {'abc': datetime.datetime(1979, 5, 27, 7, 32, 0)}
+            {'dob': datetime.datetime(1979, 5, 27, 7, 32, 0)}
         )
 
     def test_assignment_multiple(self):

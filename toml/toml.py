@@ -1,3 +1,5 @@
+import datetime
+
 from ply import lex, yacc
 
 
@@ -38,9 +40,15 @@ class TomlParser(Parser):
 
 
     def t_DATE(self, token):
-        r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ'
-        print('DATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', token)
-        token.value = '?'
+        r'(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z'
+        token.value = datetime.datetime(
+            int(token.value[0:4]), # year
+            int(token.value[5:7]), # month
+            int(token.value[8:10]), # date
+            int(token.value[11:13]), # hour
+            int(token.value[14:16]), # minute
+            int(token.value[17:19]), # second
+        )
         return token
 
     def t_INTEGER(self, token):
