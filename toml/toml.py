@@ -27,7 +27,7 @@ class TomlParser(Parser):
     # ---- lexing rules
 
     tokens = (
-        'GROUP', 'NAME','INTEGER', 'STRING',
+        'DATE', 'GROUP', 'NAME','INTEGER', 'STRING',
     )
 
     literals = ['=']
@@ -36,6 +36,12 @@ class TomlParser(Parser):
 
     t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
+
+    def t_DATE(self, token):
+        r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ'
+        print('DATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', token)
+        token.value = '?'
+        return token
 
     def t_INTEGER(self, token):
         r'\d+'
@@ -132,7 +138,8 @@ class TomlParser(Parser):
 
     def p_value(self, p):
         '''
-        value : INTEGER
+        value : DATE
+              | INTEGER
               | STRING
         '''
         p[0] = p[1]
