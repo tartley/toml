@@ -1,30 +1,17 @@
 import datetime
+import logging
 
 from ply import lex, yacc
 
 
-class Parser():
+logging.basicConfig(format='%(message)s', level=logging.DEBUG)
+
+
+class TomlParser():
 
     def __init__(self):
         self.lexer = lex.lex(module=self)
         self.parser = yacc.yacc(module=self)
-
-
-    def p_error(self, p):
-        if p is None:
-            raise SyntaxError("Syntax error at EOF")
-        else:
-            raise SyntaxError(
-                "Syntax error at '%s', line %d" % (p.value, p.lexer.lineno)
-            )
-
-
-    def parse(self, text):
-        return self.parser.parse(text, lexer=self.lexer)
-
-
-
-class TomlParser(Parser):
 
     # ---- lexing rules
 
@@ -32,9 +19,7 @@ class TomlParser(Parser):
         'DATE', 'GROUP', 'NAME','INTEGER', 'STRING',
     )
 
-    literals = ['=']
-
-    t_ignore = " \t"
+    literals = ['=', '[', ']', ","]
 
     t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
@@ -53,6 +38,7 @@ class TomlParser(Parser):
 
     def t_INTEGER(self, token):
         r'\d+'
+        logging.info(token)
         token.value = int(token.value)
         return token
 
@@ -61,8 +47,15 @@ class TomlParser(Parser):
         token.value = token.value[1:-1]
         return token
 
+    def t_whitespace(self, token):
+        r'\ +'
+        pass
+
+    # FIXME without a preceding '^', this makes test_groups_and_assignment
+    # pass, but with it, it matches arrays and makes them break.
     def t_GROUP(self, token):
         r'\[[^.]+\]'
+        logging.info('GROUP %s', token)
         token.value = token.value[1:-1]
         return token
 
@@ -87,7 +80,7 @@ class TomlParser(Parser):
         '''
         document : assignments sections
         '''
-        print('document', len(p), [i for i in p])
+        logging.info('document %s %s', len(p), [i for i in p])
         p[0] = p[1]
         p[0].update(p[2])
 
@@ -98,7 +91,7 @@ class TomlParser(Parser):
                  | section
                  | sections section
         '''
-        print('sections', len(p), [i for i in p])
+        logging.info('sections %s %s', len(p), [i for i in p])
         if len(p) == 1:
             p[0] = {}
         elif len(p) == 2:
@@ -114,7 +107,7 @@ class TomlParser(Parser):
         '''
         section : GROUP assignments
         '''
-        print('section', len(p), [i for i in p])
+        logging.info('section %s %s', len(p), [i for i in p])
         p[0] = {p[1]: p[2]}
 
 
@@ -124,7 +117,7 @@ class TomlParser(Parser):
                     | assignment
                     | assignments assignment
         '''
-        print('assignments', len(p), [i for i in p])
+        logging.info('assignments %s %s', len(p), [i for i in p])
         if len(p) == 1:
             p[0] = {}          
         elif len(p) == 2:
@@ -140,7 +133,7 @@ class TomlParser(Parser):
         '''
         assignment : NAME "=" value
         '''
-        print('assignment', len(p), [i for i in p])
+        logging.info('assignment %s %s', len(p), [i for i in p])
         p[0] = {p[1]: p[3]}
 
 
@@ -149,8 +142,48 @@ class TomlParser(Parser):
         value : DATE
               | INTEGER
               | STRING
+              | array
         '''
         p[0] = p[1]
+
+
+    def p_array(self, p):
+        '''
+        array : "[" values "]"
+        '''
+        logging.info('array %s', [i for i in p])
+        p[0] = p[2]
+
+
+    def p_values(self, p):
+        '''
+        values :
+               | value
+               | values "," value
+        '''
+        logging.info('values %s', [i for i in p])
+        if len(p) == 1:
+            p[0] = []
+        elif len(p) == 2:
+            p[0] = [p[1]]
+        elif len(p) == 4:
+            p[0] = p[1]
+            p[0].append(p[3])
+        else:
+            raise RuntimeError('how did we get here?')
+
+
+    def p_error(self, p):
+        if p is None:
+            raise SyntaxError("Syntax error at EOF")
+        else:
+            raise SyntaxError(
+                "Syntax error at '%s', line %d" % (p.value, p.lexer.lineno)
+            )
+
+
+    def parse(self, text):
+        return self.parser.parse(text, lexer=self.lexer)
 
 
 
