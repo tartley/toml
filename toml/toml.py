@@ -4,7 +4,7 @@ import logging
 from ply import lex, yacc
 
 
-logging.basicConfig(format='%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(message)s', level=logging.WARN)
 
 
 class TomlParser():
@@ -12,6 +12,8 @@ class TomlParser():
     def __init__(self):
         self.lexer = lex.lex(module=self)
         self.parser = yacc.yacc(module=self)
+        self.result = {}
+        self.group = None
 
     # ---- lexing rules
 
@@ -49,14 +51,14 @@ class TomlParser():
 
     def t_whitespace(self, token):
         r'\ +'
+        # TODO: can this go back to being simple string declaration?
         pass
 
-    # FIXME without a preceding '^', this makes test_groups_and_assignment
-    # pass, but with it, it matches arrays and makes them break.
     def t_GROUP(self, token):
-        r'\[[^.]+\]'
+        r'^\[[^.]+\]'
         logging.info('GROUP %s', token)
         token.value = token.value[1:-1]
+        self.group = token.value
         return token
 
     def t_comment(self, token):
@@ -76,64 +78,50 @@ class TomlParser():
 
     # ------- parsing rules
 
-    def p_document(self, p):
+    def p_statements(self, p):
         '''
-        document : assignments sections
+        statements :
+                   | statement
+                   | statements statement
         '''
-        logging.info('document %s %s', len(p), [i for i in p])
-        p[0] = p[1]
-        p[0].update(p[2])
-
-
-    def p_sections(self, p):
-        '''
-        sections : 
-                 | section
-                 | sections section
-        '''
-        logging.info('sections %s %s', len(p), [i for i in p])
+        logging.info('statements %s', [i for i in p])
         if len(p) == 1:
-            p[0] = {}
+            pass
+            #p[0] = {}
         elif len(p) == 2:
-            p[0] = p[1]
+            pass
+            #p[0] = p[1]
         elif len(p) == 3:
-            p[0] = p[1]
-            p[0].update(p[2])
+            pass
+            #p[0] = p[1]
+            #p[0].update(p[2])
         else:
             raise RuntimeError('how did we get here?')
 
 
-    def p_section(self, p):
+    def p_statement(self, p):
         '''
-        section : GROUP assignments
+        statement : assignment
+                  | GROUP
         '''
-        logging.info('section %s %s', len(p), [i for i in p])
-        p[0] = {p[1]: p[2]}
-
-
-    def p_assignments(self, p):
-        '''
-        assignments : 
-                    | assignment
-                    | assignments assignment
-        '''
-        logging.info('assignments %s %s', len(p), [i for i in p])
-        if len(p) == 1:
-            p[0] = {}          
-        elif len(p) == 2:
-            p[0] = p[1]
-        elif len(p) == 3:
-            p[0] = p[1]
-            p[0].update(p[2])
+        logging.info('statement %s %s %s', p, vars(p), [i for i in p])
+        if isinstance(p[1], str):
+            # group
+            self.group = p[1]
+            self.result[self.group] = {}
         else:
-            raise RuntimeError('how did we get here?')
+            # assignment
+            if self.group:
+                self.result[self.group].update(p[1])
+            else:
+                self.result.update(p[1])
 
 
     def p_assignment(self, p):
         '''
         assignment : NAME "=" value
         '''
-        logging.info('assignment %s %s', len(p), [i for i in p])
+        logging.info('assignment %s', [i for i in p])
         p[0] = {p[1]: p[3]}
 
 
@@ -183,7 +171,8 @@ class TomlParser():
 
 
     def parse(self, text):
-        return self.parser.parse(text, lexer=self.lexer)
+        self.parser.parse(text, lexer=self.lexer)
+        return self.result
 
 
 
