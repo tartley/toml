@@ -16,7 +16,7 @@ class TomlParser():
         self.lexer = lex.lex(module=self)
         self.parser = yacc.yacc(module=self)
         self.result = {}
-        self.group = None
+        self.current_group = None
 
 
     # ---- lexing rules
@@ -105,18 +105,20 @@ class TomlParser():
 
     def p_statement(self, p):
         '''
-        statement : assignment
-                  | GROUP
+        statement : GROUP
+                  | assignment
         '''
         logging.info('statement %s %s %s', p, vars(p), [i for i in p])
+
+        # group
         if isinstance(p[1], str):
-            # group
-            self.group = p[1]
-            self.result[self.group] = {}
+            self.current_group = p[1]
+            self.result[self.current_group] = {}
+
+        # assignment
         else:
-            # assignment
-            if self.group:
-                self.result[self.group].update(p[1])
+            if self.current_group:
+                self.result[self.current_group].update(p[1])
             else:
                 self.result.update(p[1])
 
