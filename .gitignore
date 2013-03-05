@@ -27,6 +27,7 @@ pip-log.txt
 nosetests.xml
 
 venv
+activate
 
 tags
 
