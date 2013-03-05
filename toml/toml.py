@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import logging
 
 from ply import lex, yacc
@@ -18,6 +18,7 @@ class TomlParser():
         self.result = {}
         self.group = None
 
+
     # ---- lexing rules
 
     tokens = (
@@ -34,17 +35,8 @@ class TomlParser():
 
 
     def t_DATETIME(self, token):
-        r'(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z'
-        # TODO: ISO8601? = r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}Z$'
-        #       return datetime.strptime(toks[0], "%Y-%m-%dT%H:%M:%SZ")
-        token.value = datetime.datetime(
-            int(token.value[0:4]), # year
-            int(token.value[5:7]), # month
-            int(token.value[8:10]), # date
-            int(token.value[11:13]), # hour
-            int(token.value[14:16]), # minute
-            int(token.value[17:19]), # second
-        )
+        r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z'
+        token.value = datetime.strptime(token.value, "%Y-%m-%dT%H:%M:%SZ")
         return token
 
     def t_INTEGER(self, token):
