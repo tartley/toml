@@ -7,6 +7,9 @@ from ply import lex, yacc
 logging.basicConfig(format='%(message)s', level=logging.WARN)
 
 
+# TODO split out lexer, parser into differnt classes in different modules
+
+
 class TomlParser():
 
     def __init__(self):
@@ -18,17 +21,22 @@ class TomlParser():
     # ---- lexing rules
 
     tokens = (
-        'DATE', 'GROUP', 'NAME','INTEGER', 'STRING',
+        'DATETIME',
+        'GROUP',
+        'KEY',
+        'INTEGER',
+        'STRING',
     )
 
     literals = ['=', '[', ']', ","]
 
-    t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
+    t_ignore = ' \t'
 
 
-    def t_DATE(self, token):
-        # TODO: ISO8601? = r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}Z$'
+    def t_DATETIME(self, token):
         r'(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z'
+        # TODO: ISO8601? = r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}Z$'
+        #       return datetime.strptime(toks[0], "%Y-%m-%dT%H:%M:%SZ")
         token.value = datetime.datetime(
             int(token.value[0:4]), # year
             int(token.value[5:7]), # month
@@ -50,16 +58,14 @@ class TomlParser():
         token.value = token.value[1:-1]
         return token
 
-    def t_whitespace(self, token):
-        r'\ +'
-        # TODO: can this go back to being simple string declaration?
-        pass
+    def t_KEY(self, token):
+        r'[a-zA-Z_][a-zA-Z0-9_#\?]*'
+        return token
 
     def t_GROUP(self, token):
-        r'^\[[^.]+\]'
+        r'\[[a-zA-Z_][a-zA-Z0-9_#\?]*\]'
         logging.info('GROUP %s', token)
         token.value = token.value[1:-1]
-        self.group = token.value
         return token
 
     def t_comment(self, token):
@@ -120,7 +126,7 @@ class TomlParser():
 
     def p_assignment(self, p):
         '''
-        assignment : NAME "=" value
+        assignment : KEY "=" value
         '''
         logging.info('assignment %s', [i for i in p])
         p[0] = {p[1]: p[3]}
@@ -128,7 +134,7 @@ class TomlParser():
 
     def p_value(self, p):
         '''
-        value : DATE
+        value : DATETIME
               | INTEGER
               | STRING
               | array

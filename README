@@ -3,6 +3,8 @@ TOML
 
 Parser for TOML, https://github.com/mojombo/toml.
 
+Status: Not remotely finished.
+
 Usage
 -----
 
@@ -10,12 +12,6 @@ Usage
 
     data = toml.loads(string)
 
-Where::
-
-    --help|-h           Show this help message and exit.
-    --version           Show version number and exit.
-
-Long description.
 
 Dependencies
 ------------
