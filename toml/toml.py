@@ -27,6 +27,7 @@ class TomlParser():
 
 
     def t_DATE(self, token):
+        # TODO: ISO8601? = r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}Z$'
         r'(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z'
         token.value = datetime.datetime(
             int(token.value[0:4]), # year
