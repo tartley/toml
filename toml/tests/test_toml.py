@@ -8,6 +8,8 @@ class LoadsTest(unittest.TestCase):
 
     def test_empty(self):
         self.assertEqual(loads(''), {})
+        self.assertEqual(loads('\n'), {})
+        self.assertEqual(loads('\t'), {})
 
     def test_comment(self):
         self.assertEqual(loads('# comment'), {})
@@ -51,6 +53,20 @@ class LoadsTest(unittest.TestCase):
             loads('abc = 123\ndef="hello"'),
             {'abc': 123, 'def': 'hello'}
         )
+
+    def test_assignments_multiple_on_same_line(self):
+        with self.assertRaises(SyntaxError):
+            loads('abc=123 def=456')
+
+    def test_assignment_and_group_on_same_line(self):
+        with self.assertRaises(SyntaxError):
+            loads('abc=123 [def]')
+        with self.assertRaises(SyntaxError):
+            loads('[def] abc=123')
+
+    def test_groups_multiple_on_same_line(self):
+        with self.assertRaises(SyntaxError):
+            loads('[abc] [def]')
 
     def test_whitespace(self):
         self.assertEqual(loads('abc = 123'), {'abc': 123})

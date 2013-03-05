@@ -27,6 +27,7 @@ class TomlParser():
         'KEY',
         'INTEGER',
         'STRING',
+        'NEWLINE',
     )
 
     literals = ['=', '[', ']', ","]
@@ -64,13 +65,14 @@ class TomlParser():
         r'\#.*'
         pass
 
-    def t_newline(self, token):
+    def t_NEWLINE(self, token):
         r'\n+'
         token.lexer.lineno += len(token.value)
+        return token
 
     def t_error(self, token):
         raise SyntaxError(
-            "Illegal character '%s' at line %d" %
+            "Illegal character %r at line %d" %
             (token.value[0], token.lexer.lineno)
         )
 
@@ -81,7 +83,8 @@ class TomlParser():
         '''
         statements :
                    | statement
-                   | statements statement
+                   | NEWLINE statements
+                   | statement NEWLINE statements
         '''
         logging.info('statements %s', [i for i in p])
         if len(p) == 1:
@@ -91,6 +94,8 @@ class TomlParser():
             pass
             #p[0] = p[1]
         elif len(p) == 3:
+            pass
+        elif len(p) == 4:
             pass
             #p[0] = p[1]
             #p[0].update(p[2])
@@ -165,7 +170,7 @@ class TomlParser():
             raise SyntaxError("Syntax error at EOF")
         else:
             raise SyntaxError(
-                "Syntax error at '%s', line %d" % (p.value, p.lexer.lineno)
+                "Syntax error at %r, line %d" % (p.value, p.lexer.lineno)
             )
 
 
