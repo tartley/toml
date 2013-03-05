@@ -32,12 +32,8 @@ class LoadsTest(unittest.TestCase):
 
     def test_assignment_array_empty(self):
         self.assertEqual(loads('abc=[]'), {'abc': []})
-        self.assertEqual(loads('abc=[]'), {'abc': []})
-        self.assertEqual(loads(' abc=[]'), {'abc': []})
-        self.assertEqual(loads(' abc =[]'), {'abc': []})
-        self.assertEqual(loads(' abc = []'), {'abc': []})
-        self.assertEqual(loads(' abc = [ ]'), {'abc': []})
         self.assertEqual(loads(' abc = [ ] '), {'abc': []})
+        self.assertEqual(loads('\tabc\t=\t[\t]\t'), {'abc': []})
 
     def test_assignment_array_single_integer(self):
         self.assertEqual(loads('abc=[1]'), {'abc': [1]})
