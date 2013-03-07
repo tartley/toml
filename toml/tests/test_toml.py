@@ -64,6 +64,7 @@ class LoadsTest(unittest.TestCase):
         self.assertEqual(loads('abc=[1,2,3]'), {'abc': [1, 2, 3]})
 
     # TODO arrays of different types
+    # TODO floats
     # TODO arrays of arrays
     # TODO heterogeneous arrays are not allowed
     # TODO array of (array of int) (array of str) is allowed
