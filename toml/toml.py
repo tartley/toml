@@ -95,18 +95,8 @@ class TomlParser():
                    | statement NEWLINE statements
         '''
         logging.info('statements %s', [i for i in p])
-        if len(p) == 1:
+        if 1 <= len(p) <= 4:
             pass
-            #p[0] = {}
-        elif len(p) == 2:
-            pass
-            #p[0] = p[1]
-        elif len(p) == 3:
-            pass
-        elif len(p) == 4:
-            pass
-            #p[0] = p[1]
-            #p[0].update(p[2])
         else:
             raise RuntimeError('how did we get here?')
 
