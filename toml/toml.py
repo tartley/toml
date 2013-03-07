@@ -43,7 +43,6 @@ class TomlParser():
 
     def t_INTEGER(self, token):
         r'\d+'
-        logging.info(token)
         token.value = int(token.value)
         return token
 
@@ -187,6 +186,7 @@ class TomlParser():
 
 
     def parse(self, text):
+        # TODO return return value instead of accumulated result
         self.parser.parse(text, lexer=self.lexer)
         if self.errors:
             raise SyntaxError(  
@@ -194,7 +194,6 @@ class TomlParser():
                 '\n'.join(self.errors)
             )
         return self.result
-
 
 
 def loads(text):
