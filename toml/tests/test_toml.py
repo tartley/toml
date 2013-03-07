@@ -14,6 +14,18 @@ class LoadsTest(unittest.TestCase):
     def test_comment(self):
         self.assertEqual(loads('# comment'), {})
 
+    def test_assignment_bad(self):
+        with self.assertRaises(SyntaxError):
+            loads('abc=')
+        with self.assertRaises(SyntaxError):
+            loads('abc=foo')
+        with self.assertRaises(SyntaxError):
+            loads('abc="')
+        with self.assertRaises(SyntaxError):
+            loads('abc="\n')
+        with self.assertRaises(SyntaxError):
+            loads('abc="\n"')
+
     def test_assignment_integer(self):
         self.assertEqual(loads('abc=123'), {'abc': 123})
 
@@ -34,8 +46,11 @@ class LoadsTest(unittest.TestCase):
 
     def test_assignment_array_empty(self):
         self.assertEqual(loads('abc=[]'), {'abc': []})
+
+    def test_whitespace(self):
         self.assertEqual(loads(' abc = [ ] '), {'abc': []})
         self.assertEqual(loads('\tabc\t=\t[\t]\t'), {'abc': []})
+        self.assertEqual(loads('abc = 123'), {'abc': 123})
 
     def test_assignment_array_single_integer(self):
         self.assertEqual(loads('abc=[1]'), {'abc': [1]})
@@ -54,6 +69,14 @@ class LoadsTest(unittest.TestCase):
             {'abc': 123, 'def': 'hello'}
         )
 
+    def test_assignment_multiple_same_name(self):
+        with self.assertRaises(SyntaxError) as cm:
+            loads('abc=123\nabc=456')
+        self.assertEqual(
+            str(cm.exception),
+            "1 errors:\nLine 0: Duplicate key 'abc'"
+        )
+
     def test_assignments_multiple_on_same_line(self):
         with self.assertRaises(SyntaxError):
             loads('abc=123 def=456')
@@ -68,15 +91,16 @@ class LoadsTest(unittest.TestCase):
         with self.assertRaises(SyntaxError):
             loads('[abc] [def]')
 
-    def test_whitespace(self):
-        self.assertEqual(loads('abc = 123'), {'abc': 123})
-
     def test_group(self):
         self.assertEqual(loads('[group]'), {'group': {}})
 
     def test_group_with_assignment(self):
         self.assertEqual(loads('[group]\nabc=123'), {'group': {'abc': 123}})
 
-    def test_groups_and_assignments(self):
+    def test_assignment_and_group(self):
         self.assertEqual(loads('abc=123\n[group]\n'), {'group': {}, 'abc': 123})
+
+    def test_assignment_and_same_named_group(self):
+        with self.assertRaises(SyntaxError):
+            loads('abc=123\n[abc]')
 
