@@ -5,7 +5,7 @@ import sys
 from ply import lex, yacc
 
 
-logging.basicConfig(format='%(message)s', level=logging.WARN)
+logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 
 # TODO split out lexer, parser into differnt classes in different modules
@@ -107,11 +107,7 @@ class TomlParser():
                    | NEWLINE statements
                    | statement NEWLINE statements
         '''
-        logging.info('statements %s', [i for i in p])
-        if 1 <= len(p) <= 4:
-            pass
-        else:
-            raise RuntimeError('how did we get here?')
+        pass
 
 
     def _get_namespace(self, name_parts):
@@ -137,29 +133,25 @@ class TomlParser():
     def p_statement(self, p):
         '''
         statement : assignment
-                  | GROUP
         '''
-        logging.info('statement %s ', [i for i in p])
+        logging.info('statement assignment %s ', [i for i in p])
+        key, value = p[1]
+        self._update_dict(
+            self._get_namespace(self.current_group),
+            key, value, p.lineno(1))
 
-        # assignment
-        if isinstance(p[1], tuple):
-            key, value = p[1]
-            self._update_dict(
-                self._get_namespace(self.current_group),
-                key, value, p.lineno(1))
-
-        # GROUP
-        elif isinstance(p[1], list):
-            logging.info('statement.GROUP %s', p[1])
-            self.current_group = p[1]
-            self._update_dict(
-                self._get_namespace(self.current_group[:-1]),
-                self.current_group[-1],
-                {},
-                p.lineno(1))
-
-        else:
-            raise RuntimeError('how did we get here?')
+    def p_statement_group(self, p):
+        '''
+        statement : GROUP
+        '''
+        logging.info('statement GROUP %s ', [i for i in p])
+        logging.info('statement.GROUP %s', p[1])
+        self.current_group = p[1]
+        self._update_dict(
+            self._get_namespace(self.current_group[:-1]),
+            self.current_group[-1],
+            {},
+            p.lineno(1))
 
 
     def p_assignment(self, p):
@@ -189,22 +181,27 @@ class TomlParser():
         p[0] = p[2]
 
 
-    def p_values(self, p):
+    def p_values_empty(self, p):
         '''
         values :
-               | value
-               | value "," values
         '''
-        logging.info('values %s', [i for i in p])
-        if len(p) == 1:
-            p[0] = []
-        elif len(p) == 2:
-            p[0] = [p[1]]
-        elif len(p) == 4:
-            p[0] = [p[1]]
-            p[0].extend(p[3])
-        else:
-            raise RuntimeError('how did we get here?')
+        logging.info('values_empty %s', [i for i in p])
+        p[0] = []
+
+    def p_values_single(self, p):
+        '''
+        values : value
+        '''
+        logging.info('values_single %s', [i for i in p])
+        p[0] = [p[1]]
+
+    def p_values_multiple(self, p):
+        '''
+        values : value "," values
+        '''
+        logging.info('values_multiple %s', [i for i in p])
+        p[0] = [p[1]]
+        p[0].extend(p[3])
 
 
     def p_error(self, p):
