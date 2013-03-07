@@ -7,7 +7,7 @@
 PROJNAME=toml
 
 test:
-	python -m unittest discover
+	python -m unittest discover -v
 .PHONY: test
 
 pylint:
