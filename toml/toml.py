@@ -32,7 +32,7 @@ class TomlParser():
         'BOOLEAN',
     )
 
-    literals = ['=', '[', ']', ","]
+    literals = '=[],'
 
     t_ignore = ' \t'
 
