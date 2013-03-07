@@ -14,6 +14,11 @@ class LoadsTest(unittest.TestCase):
     def test_comment(self):
         self.assertEqual(loads('# comment'), {})
 
+    def test_comment_after_assignment(self):
+        self.assertEqual(loads('abc=123 # comment'), {'abc': 123})
+
+    def test_comment_after_group(self):
+        self.assertEqual(loads('[group] # comment'), {'group': {}})
 
     def test_assignment_bad(self):
         with self.assertRaises(SyntaxError):
