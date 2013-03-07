@@ -29,6 +29,7 @@ class TomlParser():
         'INTEGER',
         'STRING',
         'NEWLINE',
+        'BOOLEAN',
     )
 
     literals = ['=', '[', ']', ","]
@@ -51,6 +52,16 @@ class TomlParser():
         token.value = token.value[1:-1]
         return token
 
+    def t_comment(self, token):
+        r'\#.*'
+        pass
+
+    def t_BOOLEAN(self, token):
+        r'true|false'
+        logging.info('BOOL %s', token)
+        token.value = token.value == 'true'
+        return token
+
     def t_KEY(self, token):
         r'[a-zA-Z_][a-zA-Z0-9_#\?]*'
         return token
@@ -60,10 +71,6 @@ class TomlParser():
         logging.info('GROUP %s', token)
         token.value = token.value[1:-1]
         return token
-
-    def t_comment(self, token):
-        r'\#.*'
-        pass
 
     def t_NEWLINE(self, token):
         r'\n+'
@@ -145,6 +152,7 @@ class TomlParser():
         value : DATETIME
               | INTEGER
               | STRING
+              | BOOLEAN
               | array
         '''
         p[0] = p[1]

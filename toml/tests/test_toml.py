@@ -14,6 +14,10 @@ class LoadsTest(unittest.TestCase):
     def test_comment(self):
         self.assertEqual(loads('# comment'), {})
 
+    def test_assignment_bool(self):
+        self.assertEqual(loads('abc=true'), {'abc': True})
+        self.assertEqual(loads('abc=false'), {'abc': False})
+
     def test_assignment_bad(self):
         with self.assertRaises(SyntaxError):
             loads('abc=')
