@@ -99,12 +99,22 @@ class LoadsTest(unittest.TestCase):
         self.assertEqual(loads('[group]'), {'group': {}})
 
     def test_group_with_assignment(self):
-        self.assertEqual(loads('[group]\nabc=123'), {'group': {'abc': 123}})
+        self.assertEqual(
+            loads('[group]\nabc=123'),
+            {'group': {'abc': 123}})
 
     def test_assignment_and_group(self):
-        self.assertEqual(loads('abc=123\n[group]\n'), {'group': {}, 'abc': 123})
+        self.assertEqual(
+            loads('abc=123\n[group]\n'),
+            {'group': {}, 'abc': 123})
 
     def test_assignment_and_same_named_group(self):
         with self.assertRaises(SyntaxError):
             loads('abc=123\n[abc]')
+
+    def test_nested_group(self):
+        self.assertEqual(
+            loads('[group]\n[group.subgroup]'),
+            {'group': {'subgroup': {}}}
+        )
 

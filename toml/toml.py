@@ -16,8 +16,14 @@ class TomlParser():
     def __init__(self):
         self.lexer = lex.lex(module=self)
         self.parser = yacc.yacc(module=self)
+
+        # the final accumulated result of parsing the given TOML
         self.result = {}
-        self.current_group = None
+
+        # sequence of nested subgroup names
+        # e.g. "[a.b]" represented as ['a', 'b']
+        self.current_group = []
+
         self.errors = []
 
     # ---- lexing rules
@@ -67,9 +73,9 @@ class TomlParser():
         return token
 
     def t_GROUP(self, token):
-        r'\[[a-zA-Z_][a-zA-Z0-9_#\?]*\]'
+        r'\[[a-zA-Z_][a-zA-Z0-9_#?.]*\]'
         logging.info('GROUP %s', token)
-        token.value = token.value[1:-1]
+        token.value = token.value[1:-1].split('.')
         return token
 
     def t_NEWLINE(self, token):
@@ -107,10 +113,17 @@ class TomlParser():
             raise RuntimeError('how did we get here?')
 
 
-    def _get_dict_to_update(self):
+    def _get_namespace(self, name_parts):
+        '''
+        name_parts is list of namespace names
+        return self.results[part1][part2][part3]...
+        '''
+        logging.info('get_namespace %s', name_parts)
         dict_to_update = self.result
-        if self.current_group:
-            dict_to_update = dict_to_update[self.current_group]
+        for part in name_parts:
+            dict_to_update = dict_to_update.setdefault(part, {})
+            assert isinstance(dict_to_update, dict)
+        logging.info(str(dict_to_update is self.result))
         return dict_to_update
 
 
@@ -122,21 +135,30 @@ class TomlParser():
 
     def p_statement(self, p):
         '''
-        statement : GROUP
-                  | assignment
+        statement : assignment
+                  | GROUP
         '''
-        logging.info('statement %s %s %s', p, vars(p), [i for i in p])
-
-        # group
-        if isinstance(p[1], str):
-            self.current_group = p[1]
-            self._update_dict(self.result, self.current_group, {}, p.lineno(1))
+        logging.info('statement %s ', [i for i in p])
 
         # assignment
-        else:
-            dict_to_update = self._get_dict_to_update()
+        if isinstance(p[1], tuple):
             key, value = p[1]
-            self._update_dict(dict_to_update, key, value, p.lineno(1))
+            self._update_dict(
+                self._get_namespace(self.current_group),
+                key, value, p.lineno(1))
+
+        # GROUP
+        elif isinstance(p[1], list):
+            logging.info('statement.GROUP %s', p[1])
+            self.current_group = p[1]
+            self._update_dict(
+                self._get_namespace(self.current_group[:-1]),
+                self.current_group[-1],
+                {},
+                p.lineno(1))
+
+        else:
+            raise RuntimeError('how did we get here?')
 
 
     def p_assignment(self, p):
