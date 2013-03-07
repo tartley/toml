@@ -193,7 +193,7 @@ class TomlParser():
         '''
         values :
                | value
-               | values "," value
+               | value "," values
         '''
         logging.info('values %s', [i for i in p])
         if len(p) == 1:
@@ -201,8 +201,8 @@ class TomlParser():
         elif len(p) == 2:
             p[0] = [p[1]]
         elif len(p) == 4:
-            p[0] = p[1]
-            p[0].append(p[3])
+            p[0] = [p[1]]
+            p[0].extend(p[3])
         else:
             raise RuntimeError('how did we get here?')
 

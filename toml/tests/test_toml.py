@@ -102,6 +102,14 @@ class LoadsTest(unittest.TestCase):
         )
 
 
+    def test_assignment_array_with_trailing_comma(self):
+        self.assertEqual(loads('abc=[1,2,3,]'), {'abc': [1, 2, 3]})
+
+    def test_assignment_array_with_preceding_comma(self):
+        with self.assertRaises(SyntaxError):
+            loads('abc=[,2,3]')
+
+
     # TODO arrays of different types
     # TODO floats
     # TODO arrays of arrays
