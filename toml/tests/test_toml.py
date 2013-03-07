@@ -118,3 +118,25 @@ class LoadsTest(unittest.TestCase):
             {'group': {'subgroup': {}}}
         )
 
+    def test_assignment_in_nested_group(self):
+        self.assertEqual(
+            loads('[group]\n[group.subgroup]\nabc=123'),
+            {'group': {'subgroup': {'abc': 123}}}
+        )
+
+    def test_implicit_nested_group(self):
+        self.assertEqual(
+            loads('[group.subgroup]'),
+            {'group': {'subgroup': {}}}
+        )
+
+    def test_assignment_in_implicit_nested_group(self):
+        self.assertEqual(
+            loads('[group.subgroup]\nabc=123'),
+            {'group': {'subgroup': {'abc': 123}}}
+        )
+
+    # TODO: groups with empty names?
+    # TODO: group names with consecutive '.' chars?
+    # TODO: group names starting or ending with '.'?
+
