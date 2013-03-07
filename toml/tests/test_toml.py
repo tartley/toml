@@ -61,6 +61,7 @@ class LoadsTest(unittest.TestCase):
 
     def test_assignment_array_empty(self):
         self.assertEqual(loads('abc=[]'), {'abc': []})
+        self.assertEqual(loads('abc=[\n]'), {'abc': []})
 
     def test_whitespace(self):
         self.assertEqual(loads(' abc = [ ] '), {'abc': []})
@@ -69,6 +70,9 @@ class LoadsTest(unittest.TestCase):
 
     def test_assignment_array_single_integer(self):
         self.assertEqual(loads('abc=[1]'), {'abc': [1]})
+        self.assertEqual(loads('abc=[\n1]'), {'abc': [1]})
+        self.assertEqual(loads('abc=[1\n]'), {'abc': [1]})
+        self.assertEqual(loads('abc=[\n1\n]'), {'abc': [1]})
 
     def test_assignment_array_multiple_integer(self):
         self.assertEqual(loads('abc=[1,2,3]'), {'abc': [1, 2, 3]})
@@ -101,6 +105,8 @@ class LoadsTest(unittest.TestCase):
             ]}
         )
 
+    def test_assignment_array_with_newlines(self):
+        self.assertEqual(loads('abc=[\n1\n,\n2\n,\n3\n]'), {'abc': [1, 2, 3]})
 
     def test_assignment_array_with_trailing_comma(self):
         self.assertEqual(loads('abc=[1,2,3,]'), {'abc': [1, 2, 3]})
