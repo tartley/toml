@@ -65,8 +65,37 @@ class LoadsTest(unittest.TestCase):
     def test_assignment_array_single_integer(self):
         self.assertEqual(loads('abc=[1]'), {'abc': [1]})
 
-    def test_assignment_array(self):
+    def test_assignment_array_multiple_integer(self):
         self.assertEqual(loads('abc=[1,2,3]'), {'abc': [1, 2, 3]})
+
+    def test_assignment_array_multiple_string(self):
+        self.assertEqual(
+            loads('abc=["def", "ghi", "jkl"]'),
+            {'abc': ['def', 'ghi', 'jkl']},
+        )
+
+    def test_assignment_array_multiple_boolean(self):
+        self.assertEqual(
+            loads('abc=[true,false,true]'),
+            {'abc': [True, False, True]}
+        )
+
+    def test_assignment_array_multiple_datetime(self):
+        self.assertEqual(
+            loads(
+                'abc=['
+                '1977-05-27T07:32:01Z, '
+                '1978-06-27T07:32:02Z, '
+                '1979-07-27T07:32:03Z'
+                ']'
+            ),
+            {'abc': [
+                datetime.datetime(1977, 5, 27, 7, 32, 1),
+                datetime.datetime(1978, 6, 27, 7, 32, 2),
+                datetime.datetime(1979, 7, 27, 7, 32, 3),
+            ]}
+        )
+
 
     # TODO arrays of different types
     # TODO floats
