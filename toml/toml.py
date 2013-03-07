@@ -54,8 +54,9 @@ class TomlParser():
         return token
 
     def t_STRING(self, token):
-        r'".*"'
-        token.value = token.value[1:-1]
+        r'"(\\"|[^"\n])*"'
+        logging.info('STRING %s', token)
+        token.value = token.value[1:-1].encode('utf-8').decode('unicode_escape')
         return token
 
     def t_comment(self, token):

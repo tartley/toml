@@ -39,6 +39,11 @@ class LoadsTest(unittest.TestCase):
     def test_assignment_string(self):
         self.assertEqual(loads('abc = "def"'), {'abc': "def"})
 
+    def test_assignment_string_containing_escaped_quotes(self):
+        self.assertEqual(
+            loads('quote="say \\"hello\\""'), {'quote': 'say "hello"'})
+
+
     # TODO we don't handle escaped chars in a string
 
     def test_assignment_date(self):
